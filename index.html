@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Canvas Pixel Color Downloader</title>
+    <style>
+        #canvas {
+            border: 1px solid #000;
+            margin: 0 auto;
+        }
+    </style>
+</head>
+<body>
+    <input type="text" id="charInput" placeholder="Enter a character">
+    <input type="color" id="colorInput" value="#FF0000">
+    <button id="drawButton">Draw</button>
+    <br>
+    <canvas id="canvas" width="16" height="34"></canvas>
+    <br>
+    <a id="downloadLink" href="#" download="pixel_colors.txt">Download Pixel Colors</a>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            var canvas = document.getElementById("canvas");
+            var ctx = canvas.getContext("2d");
+
+            var charInput = document.getElementById("charInput");
+            var colorInput = document.getElementById("colorInput");
+            var drawButton = document.getElementById("drawButton");
+            var downloadLink = document.getElementById("downloadLink");
+
+            drawButton.addEventListener("click", function() {
+                var char = charInput.value.trim() || "A";
+                var font = "Arial";
+                var fontSize = 16;
+                var fontColor = colorInput.value || "#FF0000"; // Default red font color
+
+                // Step 1: Create a 16x34 px canvas
+                ctx.fillStyle = "#FFF"; // Set canvas background color to white
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                // Step 2: Write any char of any font family center of the canvas
+                ctx.font = fontSize + "px " + font;
+                ctx.textAlign = "center";
+                ctx.textBaseline = "middle";
+
+                // Step 3: Set the font color
+                ctx.fillStyle = fontColor;
+
+                // Clear the canvas
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                // Write the character at the center of the canvas
+                ctx.fillText(char, canvas.width / 2, canvas.height / 2);
+            });
+
+            downloadLink.addEventListener("click", function() {
+                // Step 5: Download a file containing canvas region pixel color data in hex format
+                var imageData = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+                var colors = [];
+                for (var i = 0; i < imageData.length; i += 4) {
+                    var hexColor = "#" + ("000000" + rgbToHex(imageData[i], imageData[i + 1], imageData[i + 2])).slice(-6);
+                    colors.push(hexColor);
+                }
+                var data = colors.join("\n");
+                var blob = new Blob([data], { type: "text/plain" });
+                downloadLink.href = URL.createObjectURL(blob);
+            });
+
+            // Helper function to convert RGB to hex format
+            function rgbToHex(r, g, b) {
+                return ((r << 16) | (g << 8) | b).toString(16);
+            }
+        });
+    </script>
+</body>
+</html>
